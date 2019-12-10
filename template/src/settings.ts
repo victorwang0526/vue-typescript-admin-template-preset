@@ -13,7 +13,7 @@ interface ISettings {
 
 // You can customize below settings :)
 const settings: ISettings = {
-  title: 'Vue Typescript Admin',
+  title: '<%= options.webName %>',
   showSettings: true,
   showTagsView: true,
   showI18N: false,
