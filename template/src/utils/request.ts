@@ -24,38 +24,39 @@ service.interceptors.request.use(
 // Response interceptors
 service.interceptors.response.use(
   (response) => {
-    // Some example codes here:
-    // code == 20000: success
-    // code == 50001: invalid access token
-    // code == 50002: already login in other place
-    // code == 50003: access token expired
-    // code == 50004: invalid user (user not exist)
-    // code == 50005: username or password is incorrect
+    // Some example status here:
+    // status == 2xx: success
+    // status == 401: invalid access token
+    // status == 403: already login in other place
     // You can change this part for your own usage.
+    const status = response.status
     const res = response.data
-    if (res.code !== 20000) {
-      Message({
-        message: res.message || 'Error',
-        type: 'error',
-        duration: 5 * 1000
-      })
-      if (res.code === 50008 || res.code === 50012 || res.code === 50014) {
-        MessageBox.confirm(
-          'You have been logged out, try to login again.',
-          'Log out',
-          {
-            confirmButtonText: 'Relogin',
-            cancelButtonText: 'Cancel',
-            type: 'warning'
-          }
-        ).then(() => {
-          UserModule.ResetToken()
-          location.reload() // To prevent bugs from vue-router
-        })
-      }
-      return Promise.reject(new Error(res.message || 'Error'))
+    if (status === 200 || status === 201 || status === 202 || status === 204) {
+        if (status === 204) {
+            return null
+        }
+        return response.data
     } else {
-      return response.data
+        Message({
+            message: res.message || 'Error',
+            type: 'error',
+            duration: 5 * 1000
+        })
+        if (status === 401 || status === 403) {
+            MessageBox.confirm(
+                'You have been logged out, try to login again.',
+                'Log out',
+                {
+                    confirmButtonText: 'Relogin',
+                    cancelButtonText: 'Cancel',
+                    type: 'warning'
+                }
+            ).then(() => {
+                UserModule.ResetToken()
+                location.reload() // To prevent bugs from vue-router
+            })
+        }
+        return Promise.reject(new Error(res.message || 'Error'))
     }
   },
   (error) => {
