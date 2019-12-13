@@ -37,7 +37,7 @@ export const login = (data: any) =>
   request({
     url: '/users/login',
     method: 'post',
-    headers: { 'Authorization': 'Basic ' + btoa(data.username + ':' + data.password) }
+    headers: { 'Authorization': 'Basic ' + Buffer.from(data.username + ':' + data.password).toString('base64') }
   })
 
 export const logout = () =>
