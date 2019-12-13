@@ -49,18 +49,19 @@ export const register = (req: Request, res: Response) => {
 }
 
 export const login = (req: Request, res: Response) => {
-  const { username } = req.body
+  const auth: any = req.header('Authorization')
+  const up = auth.replace('Basic ', '')
+  const decodes = Buffer.from(up, 'base64').toString().split(':')
+  const username = decodes[0]
+  const password = decodes[1]
   for (const user of userList) {
     if (user.username === username) {
       return res.json({
-        code: 20000,
-        data: {
-          accessToken: username + '-token'
-        }
+        accessToken: username + '-token'
       })
     }
   }
-  return res.status(400).json({
+  return res.status(401).json({
     code: 50004,
     messaege: 'Invalid User'
   })
@@ -68,7 +69,7 @@ export const login = (req: Request, res: Response) => {
 
 export const logout = (req: Request, res: Response) => {
   return res.json({
-    code: 20000
+
   })
 }
 
@@ -79,21 +80,14 @@ export const getUsers = (req: Request, res: Response) => {
     return !(name && lowerCaseName.indexOf(name.toLowerCase()) < 0)
   })
   return res.json({
-    code: 20000,
-    data: {
-      items: users
-    }
+    items: users
   })
 }
 
 export const getUserInfo = (req: Request, res: Response) => {
+  const user = req.header('X-Access-Token') == 'admin-token' ? userList[0] : userList[1];
   // Mock data based on access token
-  return res.json({
-    code: 20000,
-    data: {
-      user: req.header('X-Access-Token') == 'admin-token' ? userList[0] : userList[1]
-    }
-  })
+  return res.json({ ...user })
 }
 
 export const getUserByName = (req: Request, res: Response) => {
@@ -101,14 +95,11 @@ export const getUserByName = (req: Request, res: Response) => {
   for (const user of userList) {
     if (user.username === username) {
       return res.json({
-        code: 20000,
-        data: {
-          user
-        }
+        user
       })
     }
   }
-  return res.status(400).json({
+  return res.status(404).json({
     code: 50004,
     messaege: 'Invalid User'
   })
